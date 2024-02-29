@@ -1,109 +1,76 @@
-const post =require("../models/post.js")  
+const Blog =require("../models/Blogs.js")  
+// In postController.js
+//const { validateBlog } = require('./middlewares/validationMiddleware');
 
-class PostController {
-  static getAllPosts(req, res) {
-    try {
-      var results =  post.getBlogs();
-      res.send(results);
+class PostController { 
+  static async getAllPosts(req, res) {
+    try{
+      const page = req.query.p || 0;
+      const postsPerPage = 3;
+  
+      const blogs = await Blog.find({})
+        .skip(page * postsPerPage)
+        .limit(postsPerPage);
+  
+      if (!blogs.length) {
+        return res.status(404).json('There are no posts');
+      }
+  
+      res.status(200).json(blogs);
     } catch (error) {
       console.error(error);
-      res.status(500).send("Internal Server Error");
+      res.status(500).json("Internal Server Error");
     }
-  } 
- //static addnewPost(req,res){
-//var name=req.body.name; 
-//var title=req.body.title;
-//var author=req.body.author;
-////var date=req.body.date; 
-////var x=post.addpost(name,title,author,date);
-//if (x==true)
-//res.send("the post id add sussesflly");
-//else{ 
- /// res.send(" the add failed");
-//}
-//}
-//} 
-
-  //static addNewPost(req, res) {
-   // const { title, content, author } = req.body;
-
-    //if (!title || !content || !author) {
-    //  return res.status(400).send('Missing required fields in the request body');
-    //}
-
-    //const newPost = {
-     // title,
-      //content,
-      //author,
-     // date: new Date().toISOString(),
-    //};
-
-   // const success = post.createPost(newPost);
-
-   // if (success) {
-    //  res.send('Post added successfully');
-    //} else {
-    //  res.status(500).send('Failed to add post');
-    //}
-  //} 
-  static addNewPost(req, res) {
-    const { name,title, content, author,date } = req.body;
-      console.log('Request Body:', req.body);  
-     console.log('Name:', name);
-        console.log('Title:', title);
-       console.log('Content:', content);
-        console.log('Author:', author);
-
-
-    if (!title || !content || !author) { 
-      
-      return res.status(400).send('Missing required fields in the request body');
-    }
-
-    const newPost = { 
-      //id: ++post.lastPostId, 
-       id:post.getBlogs().length +1,
+  }
+    static  async addNewPost(req, res) { 
+      try{
+    const {title, content} = req.body;
+    
+    const newPost =new Blog({ 
       title,
       content,
-      author,
-      date: new Date().toISOString(),
-    };
-    
-    const success = post.createPost(newPost);
-   
-    if (success) {
-      res.send('Post added successfully');
-    } else {
-      res.status(500).send('Failed to add post');
+      author:"65df489939ddd8f0a26c4d3c",
+    });
+
+   await newPost.save()
+   res.send(" the post is created successfully")
+  
+  }
+    catch(error){
+      console.error(error);
+      res.status(400).send(error.message);
+
     }
+
 } 
 
+static  async updatePost(req, res) {
+  try{
+  const {title, content} = req.body; 
+  const  success = await Blog.findOneAndUpdate( {_id:req.params.id},{$set:{title,content}})
 
-static updatePost(req, res) {
-    const postId = parseInt(req.params.id, 10);
-    const updatedData = req.body;
-
-    if (!postId || Object.keys(updatedData).length === 0) {
-      return res.status(400).send('Invalid request parameters');
-    }
-
-    const success = post.updatePost(postId, updatedData);
-
+   
+console.log(req.params.id)
     if (success) {
-      res.send(`Post with ID ${postId} updated successfully`);
+     return res.send(`Post  updated successfully`);
     } else {
-      res.status(404).send( `Post with ID ${ postId} not found`);
+     return res.status(404).send( `Post  not found`);
     }
+  }catch(error){ console.error(error);
+res.status(400).send(error.message);
+}
+} 
+static async deletePost(req, res) {
+  try {
+    const result = await Blog.findOneAndDelete({ _id: req.params.id });
+    if (result) {
+      return res.status(200).send("User deleted successfully");
+    } else {
+      return res.status(404).send("User not found");
+    }
+  } catch (error) {
+    return res.status(500).send("Error deleting user: " + error.message);
   }
-
- static deletePost(req, res)  {
-    const postId = req.params.id;
-
-    // Call the deletePost method from the BlogPost model
-    post.deletePost(postId);
-
-    // You can handle the response accordingly (e.g., send a response back to the client)
-    res.send(`Post with ID ${postId} deleted successfully.`);
-  }
-  }
-module.exports = PostController;
+}
+}
+module.exports =PostController;
