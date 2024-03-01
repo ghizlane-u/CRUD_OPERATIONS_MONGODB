@@ -3,7 +3,7 @@
 ## Installation
 
 1. Clone this repository to your local machine:
-   git clone `https://github.com/yosspower/blog_crud_with_mongodb.git`
+   git clone `https://github.com/ghizlane-u/CRUD_OPERATIONS_MONGODB`
 
 2. Navigate to the project directory:
 
