@@ -4,11 +4,12 @@
     if (typeof bearerHeader !== 'undefined') {
       const bearerToken = bearerHeader.split(' ')[1];
       req.token = bearerToken;
-      jwt.verify(req.token, 'your-secret-key', (err, data) => {
+      jwt.verify(req.token, 'your-secret-key', (err, decoded) => {
         if (err) {
           res.send(err.message);
-        } else {
-          next();
+        } else  {  
+          req.decoded=decoded;
+          next(); 
         }
       });
      

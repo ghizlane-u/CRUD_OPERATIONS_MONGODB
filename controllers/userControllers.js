@@ -55,7 +55,7 @@ async  function register(req,res){
       return res.send("email already exists")
    }
   const newUser= new User ({
-      username,email
+      username,email 
   }) 
   newUser.save().then((user)=>{
     console.log("user added");
